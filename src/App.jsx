@@ -1,11 +1,115 @@
-
+import { useState } from "react";
 
 function App() {
 
+  const [formData, setFormData] = useState({
+    name: "",
+    username: "",
+    password: "",
+    specialization: "",
+    expYear: 0,
+    description: ""
+  })
+
+  const handleChange = (e) => {
+  const { name, value } = e.target; 
+  setFormData({
+    ...formData, 
+    [name]: value 
+  });
+};
+
+  const handleSubmit = (e) => {
+     e.preventDefault();
+
+    const voidInputs = !formData.specialization || 
+      !formData.username || 
+      !formData.password || 
+      !formData.expYear || 
+      formData.expYear < 0 ||
+      !formData.description
+
+    if(voidInputs){
+      console.log("Compilare tutti i campi");
+      return;
+    }
+   
+    console.log(formData);
+  }
+
   return (
-    <>
-   ciao
-    </>
+    <div>
+      <form onSubmit={handleSubmit}>
+        {/*NOME*/}
+        <section>
+          <label htmlFor="name">Nome</label>
+          <input 
+          onChange={handleChange} 
+          value={formData.name}
+          type="text"
+          name="name" 
+           placeholder="Inserisci il tuo nome"/>
+        </section>
+
+        {/*USERNAME*/}
+        <section>
+          <label htmlFor="username">Username</label>
+          <input 
+          onChange={handleChange}
+          value={formData.username}
+           type="text" 
+           name="username"
+           placeholder="Inserisci l'username"/>
+        </section>
+
+        {/*PASSWORD*/}
+        <section>
+          <label htmlFor="password">Password</label>
+          <input 
+          onChange={handleChange}
+          value={formData.password}
+          type="password" 
+          name="password"  
+          placeholder="Inserisci la password"/>
+        </section>
+
+        {/*SPECIALIZZAZIONI*/}
+        <section>
+          <label htmlFor="specialization">Specializzazione</label>
+          <select 
+          name="specialization"
+          onChange={handleChange}
+          value={formData.specialization}
+          >
+            <option value="">Seleziona la specializzazione</option>
+            <option value="Fullstack">Fullstack</option>
+            <option value="Frontend">Frontend</option>
+            <option value="Backend">Backend</option>
+          </select>
+        </section>
+
+        {/*ANNI DI ESPERIENZA */}
+        <section>
+          <label htmlFor="expYear">Anni di Esperienza</label>
+          <input 
+          type="number" 
+          name="expYear"
+          onChange={handleChange}
+          value={formData.expYear} />
+        </section>
+
+        {/*BREVE DESCRIZIONE */}
+        <section>
+          <label htmlFor="description">Breve Descrizione</label>
+          <textarea 
+          name="description"
+          onChange={handleChange}
+          value={formData.description}>
+            Inserisci una breve descrizione</textarea>
+        </section>
+        <button type="submit">Invia Form</button>
+      </form>
+    </div>
   )
 }
 
