@@ -1,10 +1,10 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 
 function App() {
 
 
 
-
+  const [isFormSent, setIsFormSent] = useState(false); 
    const usernameValidationString = "Inserire un username valido, composto solo da caratteri alfanumerici e maggiore o uguale a 6 caratteri";
    const passwordValidationString = "Inserire password valido, maggiore o uguale a 8 caratteri, compresa di un simbolo, un numero e una lettera";
    const descriptionValidationString = "Inserire descrizione valida, tra 100 e 1000 caratteri. Non inserire spazi ne all'inizio ne alla fine";
@@ -15,14 +15,20 @@ function App() {
     password: "",
     description: "",
   });
-  const [formData, setFormData] = useState({
+
+  const nameRef = useRef(null);
+  const specializationRef = useRef(null);
+  const expYearRef = useRef(null);
+ 
+  const initialFormData = {
     name: "",
     username: "",
     password: "",
     specialization: "",
     expYear: 0,
     description: ""
-  })
+  }
+  const [formData, setFormData] = useState(initialFormData);
 
   const handlePasswordChange = (e) => {
     const { value } = e.target;
@@ -36,12 +42,12 @@ function App() {
     if (passwordRegex.test(value)) {
         setValidationErrors(prev => ({
             ...prev,
-            password: "" // Rimuovo l'errore se la password è valida
+            password: "" 
         }));
     } else {
         setValidationErrors(prev => ({
             ...prev,
-            password: passwordValidationString // Imposto l'errore se non è valida
+            password: passwordValidationString 
         }));
     }
   }
@@ -92,37 +98,37 @@ function App() {
   }
 
   
-const handleChange = (e) => {
-
-  const { name, value } = e.target;
-  
-  setFormData({
-    ...formData,
-    [name]: value
-  });
-
-};
-
 
 
   const handleSubmit = (e) => {
      e.preventDefault();
 
+     if(validationErrors.description || validationErrors.password || validationErrors.username){
+      return;
+     }
 
-
-    const voidInputs = !formData.specialization || 
-      !formData.username || 
-      !formData.password || 
-      !formData.expYear || 
-      formData.expYear < 0 ||
-      !formData.description
+    const finalFormData = {
+      ...formData,
+      name: nameRef.current.value,
+      expYear: expYearRef.current.value,
+      specialization: specializationRef.current.value
+    }
+   
+    const voidInputs = !finalFormData.name || 
+      !finalFormData.specialization || 
+      finalFormData.expYear < 0 ||
+      !finalFormData.username.trim() || 
+      !finalFormData.password.trim() || 
+      !finalFormData.description.trim()
 
     if(voidInputs){
       console.log("Compilare tutti i campi");
       return;
     }
    
-    console.log(formData);
+    console.log(finalFormData);
+    setFormData(initialFormData);
+    setIsFormSent(true);
   }
 
   return (
@@ -130,10 +136,10 @@ const handleChange = (e) => {
       <form onSubmit={handleSubmit}>
         {/*NOME*/}
         <section>
-          <label htmlFor="name">Nome</label>
+          <label className="form-label" htmlFor="name">Nome</label>
           <input 
-          onChange={handleChange} 
-          value={formData.name}
+          className="form-control" 
+          ref={nameRef}
           type="text"
           name="name" 
            placeholder="Inserisci il tuo nome"/>
@@ -141,8 +147,9 @@ const handleChange = (e) => {
 
         {/*USERNAME*/}
         <section>
-          <label htmlFor="username">Username</label>
+          <label className="form-label" htmlFor="username">Username</label>
           <input 
+          className="form-control" 
           onChange={handleUsernameChange}
           value={formData.username}
            type="text" 
@@ -153,8 +160,9 @@ const handleChange = (e) => {
 
         {/*PASSWORD*/}
         <section>
-          <label htmlFor="password">Password</label>
+          <label className="form-label" htmlFor="password">Password</label>
           <input 
+          className="form-control" 
           onChange={handlePasswordChange}
           value={formData.password}
           type="password" 
@@ -165,11 +173,11 @@ const handleChange = (e) => {
 
         {/*SPECIALIZZAZIONI*/}
         <section>
-          <label htmlFor="specialization">Specializzazione</label>
+          <label className="form-label" htmlFor="specialization">Specializzazione</label>
           <select 
+          className="form-control" 
           name="specialization"
-          onChange={handleChange}
-          value={formData.specialization}
+          ref={specializationRef}
           >
             <option value="">Seleziona la specializzazione</option>
             <option value="Fullstack">Fullstack</option>
@@ -180,18 +188,19 @@ const handleChange = (e) => {
 
         {/*ANNI DI ESPERIENZA */}
         <section>
-          <label htmlFor="expYear">Anni di Esperienza</label>
+          <label className="form-label" htmlFor="expYear">Anni di Esperienza</label>
           <input 
+          className="form-control" 
           type="number" 
           name="expYear"
-          onChange={handleChange}
-          value={formData.expYear} />
+         ref={expYearRef} />
         </section>
 
         {/*BREVE DESCRIZIONE */}
         <section>
-          <label htmlFor="description">Breve Descrizione</label>
+          <label className="form-label" htmlFor="description">Breve Descrizione</label>
           <textarea 
+          className="form-control" 
           name="description"
           onChange={handleDescriptionChange}
           value={formData.description}>
@@ -200,6 +209,7 @@ const handleChange = (e) => {
         </section>
         <button type="submit">Invia Form</button>
       </form>
+      {isFormSent && <h3 className="text-center text-success">FORM INVIATO</h3>}
     </div>
   )
 }
@@ -208,23 +218,6 @@ export default App
 
 
 
-// 📌 Milestone 2: Validare in tempo reale
-// Aggiungere la validazione in tempo reale dei seguenti campi:
-
-// ✅ Username: Deve contenere solo caratteri alfanumerici e almeno 6 caratteri (no spazi o simboli).
-
-// ✅ Password: Deve contenere almeno 8 caratteri, 1 lettera, 1 numero e 1 simbolo.
-
-// ✅ Descrizione: Deve contenere tra 100 e 1000 caratteri (senza spazi iniziali e finali).
-
-// Suggerimento: Per semplificare la validazione, puoi definire tre stringhe con i caratteri
-//  validi e usare .includes() per controllare se i caratteri appartengono a una di queste categorie:
-
-// const letters = "abcdefghijklmnopqrstuvwxyz";
-// const numbers = "0123456789";
-// const symbols = "!@#$%^&*()-_=+[]{}|;:'\\",.<>?/`~";
-// Per ciascuno dei campi validati in tempo reale, mostrare un messaggio di errore (rosso)
-//  nel caso non siano validi, oppure un messaggio di conferma (verde) nel caso siano validi.
 // 📌 Milestone 3: Convertire i Campi Non Controllati
 // Non tutti i campi del form necessitano di essere aggiornati a ogni carattere digitato.
 //  Alcuni di essi non influenzano direttamente l’interfaccia mentre l’utente li compila, 
@@ -236,12 +229,3 @@ export default App
 // solo al momento del submit.
 // Assicurati che la validazione continui a funzionare: Anche se un campo non è controllato,
 //  deve comunque essere validato correttamente quando l’utente invia il form.
-// 🎯 Bonus: Migliorare l'Usabilità
-// Utilizziamo useRef() per migliorare l’esperienza utente, implementando le seguenti funzionalità:
-
-// Focus automatico al primo input (Nome) al mount del componente.
-// Bottone "Reset" in fondo al form per ripristinare tutti i valori:
-// Gli input controllati devono tornare ai valori iniziali.
-// Gli input non controllati devono essere resettati manualmente usando useRef().
-// Freccia fissa in basso a destra che, quando cliccata, riporta l'utente all'inizio del form 
-// (bisogna usare position: fixed).
