@@ -2,6 +2,19 @@ import { useState } from "react";
 
 function App() {
 
+
+
+
+   const usernameValidationString = "Inserire un username valido, composto solo da caratteri alfanumerici e maggiore o uguale a 6 caratteri";
+   const passwordValidationString = "Inserire password valido, maggiore o uguale a 8 caratteri, compresa di un simbolo, un numero e una lettera";
+   const descriptionValidationString = "Inserire descrizione valida, tra 100 e 1000 caratteri. Non inserire spazi ne all'inizio ne alla fine";
+
+
+  const [validationErrors, setValidationErrors] = useState({
+    username: "",
+    password: "",
+    description: "",
+  });
   const [formData, setFormData] = useState({
     name: "",
     username: "",
@@ -11,16 +24,91 @@ function App() {
     description: ""
   })
 
-  const handleChange = (e) => {
-  const { name, value } = e.target; 
+  const handlePasswordChange = (e) => {
+    const { value } = e.target;
+    const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[!@#$%^&*()_+={}[\]|\\:;"'<>,.?/~`]).{8,}$/;
+    
+    setFormData(prev => ({
+        ...prev,
+        password: value
+    }));
+
+    if (passwordRegex.test(value)) {
+        setValidationErrors(prev => ({
+            ...prev,
+            password: "" // Rimuovo l'errore se la password è valida
+        }));
+    } else {
+        setValidationErrors(prev => ({
+            ...prev,
+            password: passwordValidationString // Imposto l'errore se non è valida
+        }));
+    }
+  }
+
+  const handleUsernameChange = (e) => {
+    const { value } = e.target;
+    const usernameRegex = /^[a-zA-Z0-9]{6,}$/;
+
+    setFormData(prev => ({
+        ...prev,
+        username: value
+    }));
+
+    if (usernameRegex.test(value)) {
+        setValidationErrors(prev => ({
+            ...prev,
+            username: "" 
+        }));
+    } else {
+        setValidationErrors(prev => ({
+            ...prev,
+            username: usernameValidationString 
+        }));
+    }
+  }
+
+   const handleDescriptionChange = (e) => {
+    const { value } = e.target;
+    const isDescriptionValid = value[0] !== " " && value[value.length - 1] !== " " && value.length >= 100 && value.length < 1000;
+
+
+    setFormData(prev => ({
+        ...prev,
+        description: value
+    }));
+
+    if (isDescriptionValid) {
+        setValidationErrors(prev => ({
+            ...prev,
+            description: "" 
+        }));
+    } else {
+        setValidationErrors(prev => ({
+            ...prev,
+            description: descriptionValidationString 
+        }));
+    }
+  }
+
+  
+const handleChange = (e) => {
+
+  const { name, value } = e.target;
+  
   setFormData({
-    ...formData, 
-    [name]: value 
+    ...formData,
+    [name]: value
   });
+
 };
+
+
 
   const handleSubmit = (e) => {
      e.preventDefault();
+
+
 
     const voidInputs = !formData.specialization || 
       !formData.username || 
@@ -55,22 +143,24 @@ function App() {
         <section>
           <label htmlFor="username">Username</label>
           <input 
-          onChange={handleChange}
+          onChange={handleUsernameChange}
           value={formData.username}
            type="text" 
            name="username"
            placeholder="Inserisci l'username"/>
+          {validationErrors.username && <strong>{validationErrors.username}</strong>}
         </section>
 
         {/*PASSWORD*/}
         <section>
           <label htmlFor="password">Password</label>
           <input 
-          onChange={handleChange}
+          onChange={handlePasswordChange}
           value={formData.password}
           type="password" 
           name="password"  
           placeholder="Inserisci la password"/>
+          {validationErrors.password && <strong>{validationErrors.password}</strong>}
         </section>
 
         {/*SPECIALIZZAZIONI*/}
@@ -103,9 +193,10 @@ function App() {
           <label htmlFor="description">Breve Descrizione</label>
           <textarea 
           name="description"
-          onChange={handleChange}
+          onChange={handleDescriptionChange}
           value={formData.description}>
             Inserisci una breve descrizione</textarea>
+            {validationErrors.description && <strong>{validationErrors.description}</strong>}
         </section>
         <button type="submit">Invia Form</button>
       </form>
@@ -115,28 +206,7 @@ function App() {
 
 export default App
 
-// 📌 Milestone 1: Creare un Form con Campi Controllati
-// Crea un form di registrazione con i seguenti campi controllati (gestiti con useState):
 
-// ✅ Nome completo (input di testo)
-
-// ✅ Username (input di testo)
-
-// ✅ Password (input di tipo password)
-
-// ✅ Specializzazione (select con opzioni: "Full Stack", "Frontend", "Backend")
-
-// ✅ Anni di esperienza (input di tipo number)
-
-// ✅ Breve descrizione sullo sviluppatore (textarea)
-
-// Aggiungi una validazione al submit, verificando che:
-
-// Tutti i campi siano compilati
-// L'input Anni di esperienza sia un numero positivo
-// La Specializzazione sia selezionata
-
-// Al submit, se il form è valido, stampa in console i dati.
 
 // 📌 Milestone 2: Validare in tempo reale
 // Aggiungere la validazione in tempo reale dei seguenti campi:
